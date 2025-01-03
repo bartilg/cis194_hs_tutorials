@@ -12,6 +12,14 @@ parseMessage x = case words x of
 parse:: String -> [LogMessage]
 parse s = map parseMessage (lines s)
 
+insert :: LogMessage -> MessageTree -> MessageTree
+insert (Unknown _) tree = tree
+insert mess Leaf = Node Leaf mess Leaf
+insert mess@(LogMessage _ messTime _) (Node lnode nodemess@(LogMessage _ nodeTime _) rnode)
+    | messTime < nodeTime = Node (insert mess lnode) nodemess rnode
+    | otherwise = Node lnode nodemess (insert mess rnode)
+insert _ tree = tree
+    
 main :: IO [LogMessage]
 main = do 
     testParse parse 10 "error.log"
