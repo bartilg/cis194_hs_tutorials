@@ -19,7 +19,16 @@ insert mess@(LogMessage _ messTime _) (Node lnode nodemess@(LogMessage _ nodeTim
     | messTime < nodeTime = Node (insert mess lnode) nodemess rnode
     | otherwise = Node lnode nodemess (insert mess rnode)
 insert _ tree = tree
-    
-main :: IO [LogMessage]
+
+build:: [LogMessage] -> MessageTree
+build [] = Leaf
+build messages = foldr insert Leaf messages
+
+inOrder :: MessageTree -> [LogMessage]
+inOrder Leaf = []
+inOrder (Node lnode mess rnode) = inOrder lnode ++ [mess] ++ inOrder rnode
+
+main :: IO ()
 main = do 
-    testParse parse 10 "error.log"
+    messages <- testParse parse 10 "error.log"
+    print (inOrder (build messages))
