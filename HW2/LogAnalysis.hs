@@ -2,6 +2,7 @@
 module LogAnalysis where
 import Log
 
+
 parseMessage :: String -> LogMessage
 parseMessage x = case words x of
     "I":n:msg -> LogMessage Info (read n) (unwords msg)
@@ -28,7 +29,19 @@ inOrder :: MessageTree -> [LogMessage]
 inOrder Leaf = []
 inOrder (Node lnode mess rnode) = inOrder lnode ++ [mess] ++ inOrder rnode
 
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong messages = map extractText (inOrder (build filtered))
+    where
+        filtered = filter sev messages
+        sev :: LogMessage -> Bool
+        sev (LogMessage (Error n) _ _) = n > 50
+        sev _ = False
+        extractText :: LogMessage -> String
+        extractText (LogMessage _ _ mess) = mess
+        extractText _ = ""
+
 main :: IO ()
 main = do 
-    messages <- testParse parse 10 "error.log"
-    print (inOrder (build messages))
+    messages <- testParse parse 6000 "error.log"
+    --print (inOrder (build messages))
+    print (unlines (whatWentWrong messages))
