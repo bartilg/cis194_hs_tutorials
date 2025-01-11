@@ -1,4 +1,5 @@
 module Golf where
+import Data.List (delete)
   
 range :: [a] -> [Int]
 range n = [1 .. (length n)]
@@ -21,8 +22,20 @@ localMaxima (x:y:z:rest)
   | otherwise = localMaxima(y:z:rest)
 localMaxima _ = []
 
-histogram :: [Integer] -> String
+buildStars :: [Integer] -> String
+buildStars lis =  map (`checkStar` lis) [0..9]
 
+checkStar :: Integer -> [Integer] -> Char
+checkStar x lis 
+  | x `elem` lis = '*'
+  | otherwise = ' '
+
+cutFirst :: [Integer] -> [Integer]
+cutFirst x = foldr delete x [0..9]
+
+histogram :: [Integer] -> String
+histogram [] = "==========\n0123456789\n"
+histogram n = histogram (cutFirst n) ++ ['\n'] ++ buildStars n
 
 main :: IO ()
 main = do 
@@ -32,3 +45,4 @@ main = do
   print(localMaxima [2,3,4,1,5])
   print(localMaxima [1,2,3,4,5])
   print(localMaxima [1,2])
+  putStrLn (histogram [1,4,5,4,6,6,3,4,2,4,9])
